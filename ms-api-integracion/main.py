@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import tareas, materias
+from routers import auth, materias, tareas
 
 app = FastAPI(
     title="CampusStudy - API Gateway",
@@ -15,7 +15,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#Registro de Routers
 for r in (tareas, materias):
+    app.include_router(r.router)
+
+#Nuevo Registro de auth no esta autenticado
+for r in (tareas, materias, auth):
     app.include_router(r.router)
 
 @app.get("/health", tags=["Sistema"])
