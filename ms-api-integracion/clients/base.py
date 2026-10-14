@@ -5,8 +5,10 @@ from core.config import settings
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
+MAX_INTENTOS = 3
 
-# --- Original de Julián: lo usan materias y tareas. NO BORRAR ---
+
+
 async def get_json(base_url: str, path: str, token: str | None = None):
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     last_error = None
@@ -28,18 +30,24 @@ async def forward(method: str, base_url: str, path: str,
     """Reenvía la petición al microservicio y devuelve su mismo código y cuerpo."""
     headers = {"Authorization": f"Bearer {token}"} if token else {}
 
-    for intento in range(3):
+    # connect: tiempo para conectarse (si no conecta, el servicio está caído)
+    # request_timeout: tiempo para recibir la respuesta (el servicio está vivo, procesando)
+    timeout = httpx.Timeout(settings.request_timeout, connect=settings.connect_timeout)
+
+    for intento in range(MAX_INTENTOS):
         try:
-            async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
+            async with httpx.AsyncClient(timeout=timeout) as client:
                 r = await client.request(method, f"{base_url}{path}",
                                          json=body, headers=headers)
             content = r.json() if r.content else None
             return JSONResponse(status_code=r.status_code, content=content)
-        except httpx.ConnectError:
+        except (httpx.ConnectError, httpx.ConnectTimeout):
             # No llegó al servicio: es seguro reintentar
-            await asyncio.sleep(0.5 * (2 ** intento))
+            if intento < MAX_INTENTOS - 1:
+                await asyncio.sleep(0.5 * (2 ** intento))  # 0.5 s, 1 s
         except httpx.TimeoutException:
-            # Pudo haberse procesado (ej. un registro): no se reintenta
+            # Llegó pero no respondió a tiempo: pudo haberse procesado
+            # (ej. un registro), así que NO se reintenta
             break
 
     raise HTTPException(status_code=503,

@@ -15,13 +15,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#Registro de Routers
-for r in (tareas, materias):
+# Registro de routers (una sola vez cada uno)
+# auth: rutas públicas | materias y tareas: requieren token
+for r in (auth, materias, tareas):
     app.include_router(r.router)
 
-#Nuevo Registro de auth no esta autenticado
-for r in (tareas, materias, auth):
-    app.include_router(r.router)
 
 @app.get("/health", tags=["Sistema"])
 def health():

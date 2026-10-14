@@ -1,10 +1,28 @@
-from fastapi import APIRouter, Depends
-from core.config import settings
-from core.security import validar_token
-from clients.base import get_json
+from typing import Annotated
 
-router = APIRouter(prefix="/api/materias", tags=["Materias"])
+from clients.base import forward
+from core.config import settings
+from fastapi import APIRouter, Body, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+router = APIRouter(prefix="/api/v1/materias", tags=["Materias"])
+
+# Lee el header "Authorization: Bearer <token>" de la petición del front
+bearer = HTTPBearer()
+
+# Alias reutilizable: "el token del usuario, sacado del header"
+Token = Annotated[HTTPAuthorizationCredentials, Depends(bearer)]
+
+
+@router.post("", status_code=201)
+async def crear_materia(body: Annotated[dict, Body()], credentials: Token):
+    """Crea una materia del estudiante autenticado. Requiere token."""
+    return await forward("POST", settings.materias_url, "/api/v1/materias",
+                         body, token=credentials.credentials)
+
 
 @router.get("")
-async def listar_materias(usuario=Depends(validar_token)):
-    return await get_json(settings.materias_url, "/materias")
+async def listar_materias(credentials: Token):
+    """Lista las materias del estudiante autenticado. Requiere token."""
+    return await forward("GET", settings.materias_url, "/api/v1/materias",
+                         token=credentials.credentials)
