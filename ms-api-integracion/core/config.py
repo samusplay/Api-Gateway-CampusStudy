@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     tareas_url: str = "http://localhost:8001"
-    grupos_url: str = "http://localhost:8002"
+    grupos_url: str = "http://localhost:8082"
     estadisticas_url: str = "http://localhost:8003"
     notificaciones_url: str = "http://localhost:8004"
     usuarios_url: str = "http://localhost:8005"

@@ -2,16 +2,10 @@ from typing import Annotated
 
 from clients.base import forward
 from core.config import settings
-from fastapi import APIRouter, Body, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from core.dependencies import Token
+from fastapi import APIRouter, Body
 
 router = APIRouter(prefix="/api/v1/materias", tags=["Materias"])
-
-# Lee el header "Authorization: Bearer <token>" de la petición del front
-bearer = HTTPBearer()
-
-# Alias reutilizable: "el token del usuario, sacado del header"
-Token = Annotated[HTTPAuthorizationCredentials, Depends(bearer)]
 
 
 @router.post("", status_code=201)

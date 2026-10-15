@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, materias, tareas
+from routers import auth, grupos, materias, tareas
 
 app = FastAPI(
     title="CampusStudy - API Gateway",
@@ -17,7 +17,7 @@ app.add_middleware(
 
 # Registro de routers (una sola vez cada uno)
 # auth: rutas públicas | materias y tareas: requieren token
-for r in (auth, materias, tareas):
+for r in (auth, materias,grupos, tareas):
     app.include_router(r.router)
 
 
