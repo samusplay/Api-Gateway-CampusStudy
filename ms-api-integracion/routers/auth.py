@@ -17,3 +17,8 @@ async def registro(body: Annotated[dict, Body()]):
 async def login(body: Annotated[dict, Body()]):
     """Inicia sesión y devuelve el token. Público: no requiere token."""
     return await forward("POST", settings.usuarios_url, "/api/v1/auth/login", body)
+
+@router.post("/validate")
+async def validar_token(body: Annotated[dict, Body()]):
+    """Indica si un token es válido y de quién es. Público: el token viaja en el body."""
+    return await forward("POST", settings.usuarios_url, "/api/v1/auth/validate", body)
