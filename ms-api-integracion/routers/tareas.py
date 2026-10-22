@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from clients.base import forward
 from core.config import settings
-from core.security import validar_token
-from clients.base import get_json
+from core.dependencies import Token
+from fastapi import APIRouter, Body
 
-router = APIRouter(prefix="/api/tareas", tags=["Tareas"])
+router = APIRouter(prefix="/api/v1/tareas", tags=["Tareas"])
 
-@router.get("/{estudiante_id}")
-async def listar_tareas(estudiante_id: int, usuario=Depends(validar_token)):
-    return await get_json(settings.tareas_url, f"/tareas/estudiante/{estudiante_id}")
+
+@router.post("", status_code=201)
+async def crear_tarea(body: Annotated[dict, Body()], credentials: Token):
+    """Crea una tarea del estudiante autenticado. Requiere token."""
+    return await forward("POST", settings.tareas_url, "/api/v1/tareas",
+                         body, token=credentials.credentials)
