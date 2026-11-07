@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     tareas_url: str = "http://localhost:8001"
     grupos_url: str = "http://localhost:8082"
     estadisticas_url: str = "http://localhost:8003"
-    notificaciones_url: str = "http://localhost:8004"
+    notificaciones_url: str = "http://localhost:3000"
     materias_url: str = "http://localhost:8006"
     usuarios_url: str = "http://localhost:8081"
     jwt_secret: str = "cambiar-en-produccion"
