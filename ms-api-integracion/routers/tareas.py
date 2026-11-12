@@ -28,6 +28,11 @@ async def cambiar_estado(tarea_id: int, body: Annotated[dict, Body()], credentia
     return await forward("PUT", settings.tareas_url, f"/api/v1/tareas/{tarea_id}/estado",
                          body, token=credentials.credentials)
 
+@router.put("/{tarea_id}")
+async def actualizar_tarea(tarea_id: int, body: Annotated[dict, Body()], credentials: Token):
+    return await forward("PUT", settings.tareas_url, f"/api/v1/tareas/{tarea_id}",
+                         body, token=credentials.credentials)
+
 @router.delete("/{tarea_id}", status_code=204)
 async def cancelar_tarea(tarea_id: int, credentials: Token):
     """Cancela la tarea (eliminación lógica). 204 sin cuerpo."""
